@@ -14,10 +14,12 @@ class threadpool{
         threadpool(int thread_number=8,int max_requests=10000);
         ~threadpool();
         bool append(T* request);
+        void run();
 
     private:
         static void * worker(void * arg);
     private:
+        
         // 线程数量
         int m_thread_number;
 
@@ -96,6 +98,7 @@ bool threadpool<T>::append(T * request){
     return true;
 }
 
+// 静态函数，arg是this指针？？
 template<typename T>
 void * threadpool<T>::worker(void * arg){
     threadpool* pool = (threadpool*)arg;
@@ -105,9 +108,29 @@ void * threadpool<T>::worker(void * arg){
 
 template<typename T>
 void threadpool<T>::run(){
+    // m_stop是线程停止的标志 线程什么时候停止 线程执行什么代码？？
     while(!m_stop){
         m_queuestat.wait();
         m_queuestat.lock();
+        // 如果没有待处理的任务 解锁并继续循环
+        if(m_workqueue.empty()){
+            m_queuestat.unlock();
+            continue;
+        }
+
+        // 获取
+        T * request = m_workqueue.front();
+        // 删掉
+        m_workqueue.pop_front();
+        // 解锁
+        m_queuelocker.unlock();
+        if(!request){
+            continue;
+        }
+        // 执行任务
+        request->process();
+
+
 
 
     }
