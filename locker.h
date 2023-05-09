@@ -1,3 +1,5 @@
+/**线程同步*/
+
 #ifndef LOCKER_H
 #define LOCKER_H
 
@@ -6,6 +8,7 @@
 #include<exception>
 #include<semaphore.h>
 using namespace std;
+
 
 // 互斥锁类
 class locker{
