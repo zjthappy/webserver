@@ -1,9 +1,8 @@
-/*
-signal(信号类型,函数指针);
-信号捕捉：
-    进程在受到型号之后，如果不捕捉就会执行默认动作
+/**
+ * 捕捉信号函数
+ * sigaction(int signum,const struct sigaction *act,struct *act)
+    const struct *
 */
-
 
 #include <stdio.h>
 #include<sys/types.h>
@@ -18,8 +17,17 @@ void my(int num){
     printf("捕捉到了信号\n");
 }
 int main(){
+
+    struct sigaction act;
+    // 设置是一嗯哪一个
+    act.sa_flags=0;
+    act.sa_handler=my;
+    // 临时清空阻塞信号集合
+    sigemptyset(&act.sa_mask);
     // 注册信号捕捉
-    signal(SIGALRM,my);
+
+    sigaction(SIGALRM,&act,NULL);
+   
 
     struct itimerval new_value;
     // 设置间隔时间
@@ -33,6 +41,6 @@ int main(){
     printf("定时器开始\n");
 
     // 等待两秒钟会发送sigalarm信号
-    getchar();
+    while(1){};
 
 }
