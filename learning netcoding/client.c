@@ -13,7 +13,7 @@ int main(){
     saddr.sin_family =AF_INET;
     inet_pton(AF_INET,"127.0.0.1",&saddr.sin_addr.s_addr);
     saddr.sin_port = htons(9999); 
-    int ret =connect(fd,(struct sockaddr_in *)&saddr,sizeof(saddr));
+    int ret =connect(fd,(struct sockaddr *)&saddr,sizeof(saddr));
 
      // 3. send data to server
     char * data = "hello,i am client";

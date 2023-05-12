@@ -12,12 +12,14 @@
 #include<unistd.h>
 #include<string.h>
 #include<signal.h>
-
+#include <errno.h>
 #include<wait.h>
-
+// 当有紫禁城结束，会发送SIGCHLD信号
+// 这里会捕获，并调用waitpid回收
+// 在执行回调函数期间 不会处理其他同类信号，但是需要回收，所以使用while循环
 void recyleChild(int arg){
     while(1){
-        //-1 all 
+        //pid=-1	等待任何子进程，此时的waitpid()函数就退化成了普通的wait()函数。
         int ret = waitpid(-1,NULL,WNOHANG);
         if(ret == -1){
             break;
@@ -25,7 +27,7 @@ void recyleChild(int arg){
             break;
         }
         else if(ret > 0){
-            printf("");
+            printf("子进程%d被回收\n",ret);
         }
     }
 
@@ -57,8 +59,15 @@ int main(){
         // 4.服务端调用 accept，等待客户端连接； (阻塞)
         struct sockaddr_in clientaddr;
         socklen_t socklen =sizeof(clientaddr);
+        // 如果在这里阻塞时 紫禁城结束，就会处理信号 
+        // 然后处理晚后accept就不会阻塞了 但如果此时没有连接 就会报错
         int cfd = accept(lfd,(struct sockaddr*)&clientaddr,&socklen);
-
+        if(cfd == -1){
+            if(errno == EINTR){
+                continue;
+            }
+            exit(-1);
+        }
         pid_t pid = fork();
 
         if(pid == 0){
