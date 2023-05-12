@@ -1,9 +1,11 @@
+
 #include <stdio.h>
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<arpa/inet.h>
 #include<unistd.h>
 #include<string.h>
+#include<stdlib.h>
 int main(){
     // 1.创建socket
     int fd =  socket( AF_INET, SOCK_STREAM,0);
@@ -16,22 +18,27 @@ int main(){
     int ret =connect(fd,(struct sockaddr *)&saddr,sizeof(saddr));
 
    
-    char recvBuf[1024] = {0};
+    
     int i = 0;
 
     // 循环 连接后不断和server通信
     while(1){
-
+        char recvBuf[1024] = {0};
          // 3. send data to server
+        fgets(recvBuf,sizeof(recvBuf),stdin);
+        write(fd,recvBuf,strlen(recvBuf)+1);
 
-        sprintf(recvBuf,"data:%d\n",i++);
-         write(fd,recvBuf,strlen(recvBuf)+1);
         sleep(1);
        
 
            // 4. read data
         int len = read(fd,recvBuf,sizeof(recvBuf));
+
+        
+       
         if(len==-1){
+            perror("read");
+            exit(-1);
             // 调用失败
         }else if(len>0){
             // 读到了数据
@@ -39,6 +46,7 @@ int main(){
         }else if(len==0){
             // 客户端断开连接
             printf("server closed.......");
+            break;
 
         }
     }
