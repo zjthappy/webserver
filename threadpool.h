@@ -43,8 +43,6 @@ class threadpool{
         // 是否结束线程
         bool m_stop;    
 
-        threadpool(/* args */);
-        ~threadpool();
 };
 
 
